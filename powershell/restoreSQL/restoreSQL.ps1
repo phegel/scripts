@@ -23,7 +23,8 @@ param (
     [Parameter()][switch]$wait,                          #wait for completion
     [Parameter()][string]$targetInstance = 'MSSQLSERVER', #SQL instance name on the targetServer
     [Parameter()][switch]$latest,
-    [Parameter()][switch]$noRecovery
+    [Parameter()][switch]$noRecovery,
+	[Parameter()][switch]$updatepassword
 )
 
 ### handle 6.0x alternate secondary data file locations
@@ -41,8 +42,13 @@ if($ndfFolders){
 ### source the cohesity-api helper code
 . $(Join-Path -Path $PSScriptRoot -ChildPath cohesity-api.ps1)
 
+if($updatepassword){
+	$updatepw = '-updatePassword'
+}else{ 
+	$updatepw = $null
+}
 ### authenticate
-apiauth -vip $vip -username $username -domain $domain
+apiauth -vip $vip -username $username -domain $domain $updatepw
 
 ### search for database to clone
 $searchresults = api get /searchvms?environment=SQL`&entityTypes=kSQL`&entityTypes=kVMware`&vmName=$sourceDB
